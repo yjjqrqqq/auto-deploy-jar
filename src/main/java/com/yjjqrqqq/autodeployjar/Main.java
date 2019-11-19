@@ -1,6 +1,7 @@
 package com.yjjqrqqq.autodeployjar;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
+        args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123","jarName=cashme-worker.jar"};
         File packageJar = new File(getArg(args, "packageJar"));
         String jarName = getArg(args, "jarName");
         Integer days = Integer.parseInt(getArg(args, "fileDays"));
@@ -26,15 +28,35 @@ public class Main {
         FileUtils.deleteQuietly(targetJar);
         System.out.println(String.format("拷贝文件%s到当前目录%s", packageJar.getCanonicalPath(), jarName));
         FileUtils.copyFile(packageJar, targetJar);
+        generateStartFile(jarName, getArg(args, "runArg"));
+        generateCheckFile(jarName, getArg(args, "port"));
 
     }
 
-    private static void generateStartFile() {
+    private static void generateCheckFile(String jarName, String port) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        if (!StringUtils.isBlank(port)) {
+            sb.append("command=\"netstat -lntp\"\n");
+            sb.append(String.format("content=\":%s\"\n", port));
+        } else {
+            sb.append("command=\"ps -aux |grep -v 'color'\"\n");
+            sb.append(String.format("content=\"%s\"\n", jarName));
+        }
+        String txt = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResource("check.sh"), "utf-8");
+        sb.append(txt);
+        FileUtils.write(new File("check.sh"), sb.toString(), "utf-8");
+        CommandUtils.executeReturnString("chmod +x check.sh");
+    }
 
+    private static void generateStartFile(String jarName, String runArg) throws Exception {
+        String command = String.format("./shutdown.sh\n" +
+                "nohup java -jar %s %s > /dev/null & exit", jarName, StringUtils.isBlank(runArg) ? "" : runArg);
+        FileUtils.write(new File("start.sh"), command, "utf-8");
+        CommandUtils.executeReturnString("chmod +x start.sh");
     }
 
     private static void generateShutdownFile(String jarName, String port) throws Exception {
-        String command = String.format("pid=$(ps -aux | grep '%' |grep -v 'color' | awk '{print $2}');\n" +
+        String command = String.format("pid=$(ps -aux | grep '%s' |grep -v 'color' | awk '{print $2}');\n" +
                         "echo $pid\n" +
                         "kill -9 $pid\n",
                 jarName
@@ -74,7 +96,7 @@ public class Main {
             String first = arg.substring(0, index);
             if (key.equalsIgnoreCase(first.trim())) {
                 String value = arg.substring(index + 1);
-                value.trim();
+                return value.trim();
             }
         }
         return null;
