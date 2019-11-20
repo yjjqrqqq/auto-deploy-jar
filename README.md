@@ -12,7 +12,7 @@
 - fileDays 仓库文件最大保存天数，与packageJar联合使用
 - runArg 运行jar包时的额外参数,最终 run.sh 中的内容是： java -jar [jarName] [runArg]
 - jarName 运行时jar包的名字，启动时会把packageJar拷贝到当前目录 ，并重命为jarName
-- waitSeconds check.sh中等待服务启动成功的超时时间，单位为秒
+- waitSeconds check.sh中等待服务启动成功的超时时间，单位为秒。启动失败生成[TeamCity Service Message](https://confluence.jetbrains.com/display/TCD9/Build+Script+Interaction+with+TeamCity?&_ga=2.40264418.1506726782.1573278037-1889108018.1569807688#BuildScriptInteractionwithTeamCity-reportingMessagesForBuildLogReportingMessagesForBuildLog)
 
 ## 最终生成相关部署文件目录及含义
 

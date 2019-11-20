@@ -29,11 +29,11 @@ public class Main {
         System.out.println(String.format("拷贝文件%s到当前目录%s", packageJar.getCanonicalPath(), jarName));
         FileUtils.copyFile(packageJar, targetJar);
         generateStartFile(jarName, getArg(args, "runArg"));
-        generateCheckFile(jarName, getArg(args, "port"));
+        generateCheckFile(jarName, getArg(args, "port"), getArg(args, "waitSeconds"));
 
     }
 
-    private static void generateCheckFile(String jarName, String port) throws Exception {
+    private static void generateCheckFile(String jarName, String port, String waitSeconds) throws Exception {
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isBlank(port)) {
             sb.append("command=\"netstat -lntp\"\n");
@@ -42,6 +42,7 @@ public class Main {
             sb.append("command=\"ps -aux |grep -v 'color'\"\n");
             sb.append(String.format("content=\"%s\"\n", jarName));
         }
+        sb.append(String.format("waitSeconds=%s\n", waitSeconds));
         String txt = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream("check.sh"), "utf-8");
         sb.append(txt);
         FileUtils.write(new File("check.sh"), sb.toString(), "utf-8");

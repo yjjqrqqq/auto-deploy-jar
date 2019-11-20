@@ -2,7 +2,7 @@
 #command="netstat -lntp"
 #content=":7777"
 #等待时长，单位秒
-waitSeconds=60
+#waitSeconds=60
 success=false
 i=1
 while(( $i<=$waitSeconds ))
