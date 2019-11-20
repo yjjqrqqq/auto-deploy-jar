@@ -2,7 +2,7 @@
 自动化部署jar包,与TeamCity或jekins集成使用
 
 ## 示例
-> java -jar auto-deploy.jar packageJar=/package/test-2010-11-11.jar port=7777 fileDays=30 ruanArg=-Denv=online jarName=run.jar waitSeconds=60
+> java -jar auto-deploy.jar packageJar=/package/test-2010-11-11.jar port=7777 fileDays=30 runArg=-Denv=online jarName=run.jar waitSeconds=60
 
 运行上面命令后，会自动拷贝文件，清理历史文件，生成相关部署脚本
 
