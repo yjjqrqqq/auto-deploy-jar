@@ -17,7 +17,7 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
-        args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
+        //args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
         File packageJar = new File(getArg(args, "packageJar"));
         String jarName = getArg(args, "jarName");
         Integer days = Integer.parseInt(getArg(args, "fileDays"));
