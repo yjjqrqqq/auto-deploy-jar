@@ -17,7 +17,7 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
-        args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123","jarName=cashme-worker.jar"};
+        args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
         File packageJar = new File(getArg(args, "packageJar"));
         String jarName = getArg(args, "jarName");
         Integer days = Integer.parseInt(getArg(args, "fileDays"));
@@ -42,7 +42,7 @@ public class Main {
             sb.append("command=\"ps -aux |grep -v 'color'\"\n");
             sb.append(String.format("content=\"%s\"\n", jarName));
         }
-        String txt = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResource("check.sh"), "utf-8");
+        String txt = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream("check.sh"), "utf-8");
         sb.append(txt);
         FileUtils.write(new File("check.sh"), sb.toString(), "utf-8");
         CommandUtils.executeReturnString("chmod +x check.sh");
@@ -95,8 +95,10 @@ public class Main {
             }
             String first = arg.substring(0, index);
             if (key.equalsIgnoreCase(first.trim())) {
-                String value = arg.substring(index + 1);
-                return value.trim();
+                String value = arg.substring(index + 1).trim();
+                value = value.replace("^['\"]", "");
+                value = value.replace("['\"]$", "");
+                return value;
             }
         }
         return null;
