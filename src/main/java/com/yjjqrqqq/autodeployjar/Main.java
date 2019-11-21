@@ -116,8 +116,10 @@ public class Main {
                 }
             });
             while (files.size() > Integer.parseInt(maxFileNumber)) {
-                FileUtils.deleteQuietly(files.get(files.size() - 1));
-                files.remove(files.size() - 1);
+                File toDelete = files.get(files.size() - 1);
+                System.out.println(String.format("文件数%d超过%s,清理：%s", files.size(), maxFileNumber, toDelete.getCanonicalPath()));
+                FileUtils.deleteQuietly(toDelete);
+                files.remove(toDelete);
             }
         }
     }
