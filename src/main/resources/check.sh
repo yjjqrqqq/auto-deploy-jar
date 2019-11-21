@@ -8,7 +8,7 @@ i=1
 while(( $i<=$waitSeconds ))
 do
 	echo "第${i}次尝试"
-	cr=$(${command})
+	cr=$(echo ${command} |sh)
 	match=$(expr match "$cr" ".*$content.*")
 	if test $match -gt 0
 		then

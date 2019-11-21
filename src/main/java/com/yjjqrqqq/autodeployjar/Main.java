@@ -5,6 +5,9 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author liuyixin
@@ -18,12 +21,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
         try {
             //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
-            //args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
+            //args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60", "maxFileNumber=3"};
             File packageJar = new File(getArg(args, "packageJar"));
             System.out.println("packageJar:" + packageJar.getCanonicalPath());
             String jarName = getArg(args, "jarName");
-            Integer days = Integer.parseInt(getArg(args, "fileDays"));
-            clear(packageJar.getParentFile(), days);//1 ：清理历史文件
+            clear(packageJar.getParentFile(), args);//1 ：清理历史文件
 
             generateShutdownFile(jarName, getArg(args, "port"));
             System.out.println("清理历史文件:" + jarName);
@@ -84,16 +86,38 @@ public class Main {
         //CommandUtils.executeReturnString("sh shutdown.sh");
     }
 
-    private static void clear(File dir, int days) throws IOException {
+    private static void clear(File dir, String[] args) throws IOException {
         System.out.println("清理过期文件:" + dir.getCanonicalPath());
+        String fileDays = getArg(args, "fileDays");
+        String maxFileNumber = getArg(args, "maxFileNumber");
+        List<File> files = new ArrayList<File>();
         for (File file : dir.listFiles()) {
             if (!file.getName().toLowerCase().trim().endsWith(".jar")) {
                 continue;
             }
-            int interval = (int) ((System.currentTimeMillis() - file.lastModified()) / (1000 * 3600 * 24));
-            if (interval > days) {
-                System.out.println(String.format("超过%d天，删除文件%s", days, file.getCanonicalPath()));
-                FileUtils.deleteQuietly(file);
+            boolean deleted = false;
+            if (!StringUtils.isBlank(fileDays)) {
+                Integer days = Integer.parseInt(fileDays);
+                int interval = (int) ((System.currentTimeMillis() - file.lastModified()) / (1000 * 3600 * 24));
+                if (interval > days) {
+                    System.out.println(String.format("超过%d天，删除文件%s", days, file.getCanonicalPath()));
+                    FileUtils.deleteQuietly(file);
+                    deleted = true;
+                }
+            }
+            if (!deleted) {
+                files.add(file);
+            }
+        }
+        if (!StringUtils.isBlank(maxFileNumber)) {
+            files.sort(new Comparator<File>() {
+                public int compare(File o1, File o2) {
+                    return (o2.lastModified() - o1.lastModified()) > 0L ? 1 : -1;
+                }
+            });
+            while (files.size() > Integer.parseInt(maxFileNumber)) {
+                FileUtils.deleteQuietly(files.get(files.size() - 1));
+                files.remove(files.size() - 1);
             }
         }
     }
@@ -114,4 +138,6 @@ public class Main {
         }
         return null;
     }
+
+
 }
