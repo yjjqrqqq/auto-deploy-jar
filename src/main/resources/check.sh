@@ -19,7 +19,7 @@ do
 	i=$[i+1]
 	sleep 1s
 done
-if [ success == true ]
+if [ $success == true ]
 	then
 		echo Start success
 	else

@@ -16,24 +16,31 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws Exception {
-        //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
-        //args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "port=7777", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
-        File packageJar = new File(getArg(args, "packageJar"));
-        String jarName = getArg(args, "jarName");
-        Integer days = Integer.parseInt(getArg(args, "fileDays"));
-        clear(packageJar.getParentFile(), days);//1 ：清理历史文件
+        try {
+            //packageJar=jar路径 port=端口号 fileDays=30 jarName= runArg=
+            //args = new String[]{"packageJar=/home/liuyixin/tmp/cashme.worker.jar.2010", "fileDays=30", "runArg=-Dsonar=123", "jarName=cashme-worker.jar", "waitSeconds=60"};
+            File packageJar = new File(getArg(args, "packageJar"));
+            System.out.println("packageJar:" + packageJar.getCanonicalPath());
+            String jarName = getArg(args, "jarName");
+            Integer days = Integer.parseInt(getArg(args, "fileDays"));
+            clear(packageJar.getParentFile(), days);//1 ：清理历史文件
 
-        generateShutdownFile(jarName, getArg(args, "port"));
-        File targetJar = new File(jarName);
-        FileUtils.deleteQuietly(targetJar);
-        System.out.println(String.format("拷贝文件%s到当前目录%s", packageJar.getCanonicalPath(), jarName));
-        FileUtils.copyFile(packageJar, targetJar);
-        generateStartFile(jarName, getArg(args, "runArg"));
-        generateCheckFile(jarName, getArg(args, "port"), getArg(args, "waitSeconds"));
-
+            generateShutdownFile(jarName, getArg(args, "port"));
+            System.out.println("清理历史文件:" + jarName);
+            File targetJar = new File(jarName);
+            FileUtils.deleteQuietly(targetJar);
+            System.out.println(String.format("拷贝文件%s到当前目录%s", packageJar.getCanonicalPath(), jarName));
+            FileUtils.copyFile(packageJar, targetJar);
+            generateStartFile(jarName, getArg(args, "runArg"));
+            generateCheckFile(jarName, getArg(args, "port"), getArg(args, "waitSeconds"));
+        } catch (Exception ex) {
+            System.out.println("异常结束：" + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private static void generateCheckFile(String jarName, String port, String waitSeconds) throws Exception {
+        System.out.println("生成check.sh");
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isBlank(port)) {
             sb.append("command=\"netstat -lntp\"\n");
@@ -50,13 +57,15 @@ public class Main {
     }
 
     private static void generateStartFile(String jarName, String runArg) throws Exception {
-        String command = String.format("./shutdown.sh\n" +
-                "nohup java -jar %s %s > /dev/null & exit", jarName, StringUtils.isBlank(runArg) ? "" : runArg);
+        System.out.println("生成 start.sh");
+        String command = String.format("./shutdown.sh\n"
+                + "nohup java -jar %s %s > /dev/null & exit", jarName, StringUtils.isBlank(runArg) ? "" : runArg);
         FileUtils.write(new File("start.sh"), command, "utf-8");
         CommandUtils.executeReturnString("chmod +x start.sh");
     }
 
     private static void generateShutdownFile(String jarName, String port) throws Exception {
+        System.out.println("生成 shutdown.sh");
         String command = String.format("pid=$(ps -aux | grep '%s' |grep -v 'color' | awk '{print $2}');\n" +
                         "echo $pid\n" +
                         "kill -9 $pid\n",
@@ -72,10 +81,11 @@ public class Main {
         }
         FileUtils.write(new File("shutdown.sh"), command, "utf-8");
         CommandUtils.executeReturnString("chmod +x shutdown.sh");
-        CommandUtils.executeReturnString("sh shutdown.sh");
+        //CommandUtils.executeReturnString("sh shutdown.sh");
     }
 
     private static void clear(File dir, int days) throws IOException {
+        System.out.println("清理过期文件:" + dir.getCanonicalPath());
         for (File file : dir.listFiles()) {
             if (!file.getName().toLowerCase().trim().endsWith(".jar")) {
                 continue;

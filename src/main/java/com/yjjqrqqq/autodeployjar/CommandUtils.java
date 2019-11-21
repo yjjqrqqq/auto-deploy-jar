@@ -10,13 +10,13 @@ import java.io.InputStream;
  */
 public class CommandUtils {
     public static String executeReturnString(String command) throws Exception {
-        System.out.println(command);
+        System.out.println("execute:" + command);
         Process process = Runtime.getRuntime().exec(command);
         process.waitFor();
         InputStream is = process.getInputStream();
         try {
             String result = IOUtils.toString(is, "utf-8");
-            System.out.println(result);
+            System.out.println("execute result:" + result);
             return result;
         } finally {
             is.close();
