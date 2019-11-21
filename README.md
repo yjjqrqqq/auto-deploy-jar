@@ -18,7 +18,7 @@
 
 ```bash
 ├── /run.jar 与jarName一致，实际运行的jar
-├── /run.sh 启动命令文件
+├── /start.sh 启动命令文件
 ├── /shutdown.sh 停止命令文件
 ├── /check.sh 检查服务是否启动， 等等成功的超时时间 waitSeconds秒。这里若启用失败会生成TeamCity 的失败Message. 
  
