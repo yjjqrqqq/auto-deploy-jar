@@ -27,7 +27,7 @@ public class Main {
             String jarName = getArg(args, "jarName");
             clear(packageJar.getParentFile(), args);//1 ：清理历史文件
 
-            if (!StringUtils.isBlank(getArg(args, waitSeconds))) {
+            if (StringUtils.isBlank(getArg(args, "waitSeconds"))) {
                 return;
             }
 
