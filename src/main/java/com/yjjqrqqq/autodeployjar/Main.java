@@ -27,6 +27,10 @@ public class Main {
             String jarName = getArg(args, "jarName");
             clear(packageJar.getParentFile(), args);//1 ：清理历史文件
 
+            if (!StringUtils.isBlank(getArg(args, waitSeconds))) {
+                return;
+            }
+
             generateShutdownFile(jarName, getArg(args, "port"));
             System.out.println("清理历史文件:" + jarName);
             File targetJar = new File(jarName);
@@ -92,9 +96,9 @@ public class Main {
         String maxFileNumber = getArg(args, "maxFileNumber");
         List<File> files = new ArrayList<File>();
         for (File file : dir.listFiles()) {
-            if (!file.getName().toLowerCase().trim().endsWith(".jar")) {
+            /*if (!file.getName().toLowerCase().trim().endsWith(".jar")) {
                 continue;
-            }
+            }*/
             boolean deleted = false;
             if (!StringUtils.isBlank(fileDays)) {
                 Integer days = Integer.parseInt(fileDays);
