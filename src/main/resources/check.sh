@@ -12,7 +12,7 @@ do
 	match=$(expr match "$cr" ".*$content.*")
 	if test $match -gt 0
 		then
-			echo "第${i}次检测成功"
+		  echo "##teamcity[buildStatus status='SUCCESS' text='第${i}次检测成功']"
 			success=true
 			break
 	fi
