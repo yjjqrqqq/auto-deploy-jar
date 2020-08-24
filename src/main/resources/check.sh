@@ -12,7 +12,7 @@ do
 	match=$(expr match "$cr" ".*$content.*")
 	if test $match -gt 0
 		then
-		  echo "##teamcity[buildStatus status='SUCCESS' text='第${i}次检测成功']"
+			echo "第${i}次检测成功"
 			success=true
 			break
 	fi
@@ -21,7 +21,7 @@ do
 done
 if [ $success == true ]
 	then
-		echo Start success
+		echo "##teamcity[buildStatus status='SUCCESS' text='启动成功']"
 	else
 		echo "##teamcity[buildProblem description='经过 $i 秒尝试后启动服务失败 ' identity='Start service failed']"
 fi
