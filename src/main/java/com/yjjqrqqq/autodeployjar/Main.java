@@ -37,7 +37,7 @@ public class Main {
             FileUtils.deleteQuietly(targetJar);
             System.out.println(String.format("拷贝文件%s到当前目录%s", packageJar.getCanonicalPath(), jarName));
             FileUtils.copyFile(packageJar, targetJar);
-            generateStartFile(jarName, getArg(args, "runArg"));
+            generateStartFile(jarName, getArg(args, "vmOptions"), getArg(args, "mainArgs"));
             generateCheckFile(jarName, getArg(args, "port"), getArg(args, "waitSeconds"));
         } catch (Exception ex) {
             System.out.println("异常结束：" + ex.getMessage());
@@ -62,10 +62,13 @@ public class Main {
         CommandUtils.executeReturnString("chmod +x check.sh");
     }
 
-    private static void generateStartFile(String jarName, String runArg) throws Exception {
+    private static void generateStartFile(String jarName, String vmOptions, String mainArgs) throws Exception {
         System.out.println("生成 start.sh");
         String command = String.format("./shutdown.sh\n"
-                + "nohup java -jar %s %s > /dev/null & exit", jarName, StringUtils.isBlank(runArg) ? "" : runArg);
+                        + "nohup java -jar %s %s %s > /dev/null & exit",
+                StringUtils.isBlank(vmOptions) ? "" : vmOptions,
+                jarName,
+                StringUtils.isBlank(mainArgs) ? "" : mainArgs);
         FileUtils.write(new File("start.sh"), command, "utf-8");
         CommandUtils.executeReturnString("chmod +x start.sh");
     }
@@ -115,6 +118,7 @@ public class Main {
         }
         if (!StringUtils.isBlank(maxFileNumber)) {
             files.sort(new Comparator<File>() {
+                @Override
                 public int compare(File o1, File o2) {
                     return (o2.lastModified() - o1.lastModified()) > 0L ? 1 : -1;
                 }
